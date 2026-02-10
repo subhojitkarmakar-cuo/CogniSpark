@@ -3,10 +3,29 @@ import google.generativeai as genai
 import time
 
 # --- CONFIGURATION & SECURITY ---
+# 👉 Your Latest API Key Integrated
 MASTER_KEY = "AIzaSyBUHE7pfE3ievPC2ij30jXsVSqcY6wVjIg" 
 
 genai.configure(api_key=MASTER_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+
+# --- SMART MODEL AUTO-SELECTOR (To prevent 404 Errors) ---
+def get_working_model():
+    # It will try the latest, then fallback to others if needed
+    models_to_try = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro']
+    for m in models_to_try:
+        try:
+            temp_model = genai.GenerativeModel(m)
+            # Connectivity check
+            temp_model.generate_content("ping")
+            return temp_model
+        except:
+            continue
+    # Ultimate fallback: List all and pick the first working one
+    available = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    return genai.GenerativeModel(available[0])
+
+# Initialize the strongest available engine
+model = get_working_model()
 
 # --- PAGE CONFIG ---
 st.set_page_config(
@@ -89,7 +108,9 @@ if st.button("🚀 EXECUTE GENERATION"):
                 st.balloons()
                 
             except Exception as e:
+                # Error recovery
                 st.error(f"⚠️ SYSTEM CRITICAL ERROR: {str(e)}")
+                st.info("🔄 Suggestion: Try refreshing the page or checking your API quota.")
     else:
         st.warning("❗ ACCESS DENIED: Input field is empty.")
 
