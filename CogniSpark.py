@@ -3,7 +3,7 @@ import google.generativeai as genai
 import time
 
 # --- CONFIGURATION & SECURITY ---
-MASTER_KEY = "AIzaSyBsacLLewat063GPMl2T-UBS90L4SRUS8A" 
+MASTER_KEY = "AIzaSyBUHE7pfE3ievPC2ij30jXsVSqcY6wVjIg" 
 
 genai.configure(api_key=MASTER_KEY)
 model = genai.GenerativeModel('gemini-pro')
