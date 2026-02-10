@@ -6,7 +6,7 @@ import time
 MASTER_KEY = "AIzaSyBUHE7pfE3ievPC2ij30jXsVSqcY6wVjIg" 
 
 genai.configure(api_key=MASTER_KEY)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini')
 
 # --- PAGE CONFIG ---
 st.set_page_config(
