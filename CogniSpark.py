@@ -1,81 +1,87 @@
 import streamlit as st
 import google.generativeai as genai
+from PIL import Image
 import time
 
-# --- ১. কনফিগারেশন এবং এপিআই কী ---
+# --- 1. CORE CONFIGURATION ---
+# 👉 Your Master API Key
 MASTER_KEY = "AIzaSyBUHE7pfE3ievPC2ij30jXsVSqcY6wVjIg" 
 genai.configure(api_key=MASTER_KEY)
 
-# --- ২. অটো-মডেল সিলেকশন (যাতে ৪০৪ এরর না আসে) ---
-def get_valid_model():
-    # এটি আপনার এপিআই কী-তে সচল থাকা সবথেকে ভালো মডেলটি খুঁজে নেবে
-    try:
-        models = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro']
-        for m in models:
-            try:
-                test_model = genai.GenerativeModel(m)
-                test_model.generate_content("hi")
-                return test_model
-            except:
-                continue
-        # যদি উপরের কোনটি কাজ না করে তবে একাউন্টের প্রথম মডেলটি নেবে
-        valid_list = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        return genai.GenerativeModel(valid_list[0])
-    except Exception:
-        return genai.GenerativeModel('gemini-1.5-flash')
+# Using Gemini 1.5 Flash for Super Fast Responses
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-model = get_valid_model()
-
-# --- ৩. পেজ কনফিগারেশন এবং এসইও ---
+# --- 2. PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="CogniSpark AI | Neural Study Engine",
+    page_title="CogniSpark AI",
     page_icon="⚡",
     layout="wide"
 )
 
-# গুগল ভেরিফিকেশন ট্যাগ (মেটা ট্যাগ পদ্ধতি)
-st.markdown("""
-    <head>
-        <meta name="google-site-verification" content="M-XoUbvsIR0HE4L_LW90lOg8btmH60yP2gCAEkxXJJo" />
-        <meta name="description" content="CogniSpark AI - The ultimate neural study assistant.">
-    </head>
-    """, unsafe_allow_html=True)
-
-# --- ৪. ইউজার ইন্টারফেস ডিজাইন (CSS) ---
+# --- 3. MASTER CYBERSTYLE UI ---
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; color: #00ffc3; }
-    .stTextInput > div > div > input { background-color: #161b22; color: #00ffc3; border: 1px solid #00ffc3; border-radius: 10px; }
-    .stButton>button { width: 100%; background: linear-gradient(45deg, #00ffc3, #0080ff); color: black; font-weight: bold; border-radius: 10px; border: none; }
-    .stButton>button:hover { transform: scale(1.05); box-shadow: 0px 0px 20px #00ffc3; }
+    .main { background-color: #050a10; color: #00ffc3; }
+    .stTextInput > div > div > input { background-color: #101720; color: #00ffc3; border: 1px solid #00ffc3; }
+    .stButton>button { width: 100%; background: linear-gradient(45deg, #00ffc3, #0080ff); color: black; font-weight: bold; border-radius: 8px; border: none; height: 3em; }
+    .stButton>button:hover { box-shadow: 0px 0px 20px #00ffc3; transform: scale(1.02); }
+    .sidebar .sidebar-content { background-color: #101720; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- ৫. সাইডবার ---
+# --- 4. SIDEBAR (OPTIONS PANEL) ---
 with st.sidebar:
-    st.title("⚡ SYSTEM STATUS")
-    st.code("STATUS: ONLINE\nCORE: NEURAL-v2\nUSER: AUTHORIZED", language="bash")
-    st.image("https://img.icons8.com/nolan/128/artificial-intelligence.png")
+    st.title("⚡ COGNI-CORE v3")
+    st.markdown("---")
+    mode = st.selectbox("🛠️ SELECT MODE:", [
+        "Instant Answer", 
+        "Image/Screenshot Analysis", 
+        "Deep Research", 
+        "Code Explainer"
+    ])
+    st.info("Status: System Operational ✅")
+    st.write("Ready to process neural packets...")
 
-# --- ৬. মেইন ইন্টারফেস ---
-st.title("🛸 COGNISPARK: NEURAL INTERFACE")
+# --- 5. MAIN INTERFACE ---
+st.title("🛸 COGNISPARK: NEURAL LINK")
 st.write("---")
 
-user_input = st.text_input("📡 TERMINAL_INPUT >", placeholder="আপনার প্রশ্নটি এখানে লিখুন...")
+if mode == "Image/Screenshot Analysis":
+    st.subheader("📸 Upload Screenshot or Image")
+    uploaded_file = st.file_uploader("Drop your image here...", type=["jpg", "jpeg", "png"])
+    user_prompt = st.text_input("📡 Any specific question about this image?", placeholder="e.g. Solve this math problem or explain this graph...")
+    
+    if st.button("🚀 ANALYZE IMAGE"):
+        if uploaded_file:
+            img = Image.open(uploaded_file)
+            st.image(img, caption="Target Image", width=400)
+            with st.status("🧠 Scanning Image Layers...", expanded=True):
+                response = model.generate_content([user_prompt if user_prompt else "Analyze this image in detail", img])
+                st.markdown("### 💎 AI INSIGHT:")
+                st.write(response.text)
+        else:
+            st.warning("❗ Please upload an image first.")
 
-if st.button("🚀 EXECUTE GENERATION"):
-    if user_input:
-        with st.status("🛠️ Processing Neural Data...", expanded=True) as status:
-            try:
-                response = model.generate_content(user_input)
-                status.update(label="✅ SUCCESS", state="complete", expanded=False)
-                st.markdown("### 💎 RESULT:")
-                st.success(response.text)
-                st.balloons()
-            except Exception as e:
-                st.error(f"⚠️ ERROR: {str(e)}")
-    else:
-        st.warning("❗ ইনপুট খালি রাখা যাবে না।")
+else:
+    st.subheader("📡 Neural Terminal")
+    user_query = st.text_area("ENTER COMMAND / QUERY:", placeholder="Type anything you want to know...", height=150)
+    
+    if st.button("⚡ EXECUTE GENERATION"):
+        if user_query:
+            with st.status("🛠️ Extracting Knowledge...", expanded=True) as status:
+                try:
+                    # Logic based on mode
+                    final_prompt = f"Mode: {mode}. Query: {user_query}"
+                    response = model.generate_content(final_prompt)
+                    status.update(label="✅ TASK COMPLETED", state="complete", expanded=False)
+                    st.markdown("### 💎 RETRIEVED INTELLIGENCE:")
+                    st.success(response.text)
+                    st.balloons()
+                except Exception as e:
+                    st.error(f"⚠️ CORE ERROR: {str(e)}")
+        else:
+            st.warning("❗ Input terminal is empty.")
 
+# --- FOOTER ---
 st.markdown("---")
-st.caption("© 2026 CogniSpark | All Rights Reserved")
+st.caption("© 2026 CogniSpark Master OS | Developed for High-Speed AI Interaction")
