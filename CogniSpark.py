@@ -29,17 +29,14 @@ model = get_working_model()
 
 # --- PAGE CONFIG ---
 # --- PAGE CONFIG WITH SEO ---
-st.set_page_config(
-    page_title="CogniSpark AI | Advanced Neural Study Assistant",
-    page_icon="⚡",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://cognispark.streamlit.app',
-        'Report a bug': "https://cognispark.streamlit.app",
-        'About': "# CogniSpark AI\nYour Professional AI Study Partner for Deep Analysis and Smart Notes. High-speed Neural Interface for students and researchers."
-    }
-)
+st.set_page_config
+    # --- GOOGLE VERIFICATION & SEO ---
+st.markdown(f"""
+    <head>
+        <meta name="google-site-verification" <meta name="google-site-verification" content="M-XoUbvsIR0HE4L_LW90lOg8btmH60yP2gCAEkxXJJo" />" />
+        <meta name="description" content="CogniSpark AI - Advanced Neural Interface for Smart Learning.">
+    </head>
+    """, unsafe_allow_html=True)
 
 # --- GOOGLE SEARCH VISIBILITY SCRIPT ---
 st.markdown("""
