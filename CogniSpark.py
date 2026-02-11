@@ -2,122 +2,88 @@ import streamlit as st
 import google.generativeai as genai
 import time
 
-# --- CONFIGURATION & SECURITY ---
-# আপনার দেওয়া আসল API Key
+# --- 1. CONFIGURATION ---
+# Your Working API Key
 MASTER_KEY = "AIzaSyBUHE7pfE3ievPC2ij30jXsVSqcY6wVjIg" 
 genai.configure(api_key=MASTER_KEY)
 
-# --- SMART MODEL AUTO-SELECTOR (To prevent 404 Errors) ---
-def get_working_model():
-    models_to_try = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro']
-    for m in models_to_try:
+# --- 2. SMART MODEL SELECTION (Fixes 404 Error) ---
+def get_active_model():
+    # It attempts to find the best available model for your key
+    candidates = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro']
+    for m in candidates:
         try:
-            temp_model = genai.GenerativeModel(m)
-            temp_model.generate_content("ping")
-            return temp_model
+            temp = genai.GenerativeModel(m)
+            temp.generate_content("test") # Connection test
+            return temp
         except:
             continue
+    # Fallback to the first authorized model in your account
     available = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
     return genai.GenerativeModel(available[0])
 
-model = get_working_model()
+model = get_active_model()
 
-# --- PAGE CONFIG ---
+# --- 3. PAGE SETUP & SEO ---
 st.set_page_config(
     page_title="CogniSpark | AI Neural Engine",
     page_icon="⚡",
     layout="wide"
 )
 
-# --- GOOGLE VERIFICATION & SEO ---
-# এটি গুগলকে আপনার সাইটের মালিকানা নিশ্চিত করতে সাহায্য করবে
+# HTML for Google Verification & SEO
 st.markdown("""
     <div style="display:none;">
         <meta name="google-site-verification" content="M-XoUbvsIR0HE4L_LW90lOg8btmH60yP2gCAEkxXJJo" />
-        <meta name="description" content="CogniSpark AI - Advanced Neural Interface for students. Get smart notes, deep analysis, and solutions.">
-        <meta name="keywords" content="CogniSpark, AI Study Assistant, Neural Engine, Smart Notes AI">
+        <meta name="description" content="CogniSpark AI - Advanced Neural Interface for Smart Learning and Analysis.">
     </div>
     """, unsafe_allow_html=True)
 
-# --- CYBER HACKER STYLE CSS ---
+# --- 4. CYBER STYLE UI (CSS) ---
 st.markdown("""
     <style>
-    .main {
-        background-color: #0e1117;
-        color: #00ffc3;
-    }
-    .stTextInput > div > div > input {
-        background-color: #161b22;
-        color: #00ffc3;
-        border: 1px solid #00ffc3;
-        border-radius: 10px;
-    }
-    .stButton>button {
-        width: 100%;
-        background: linear-gradient(45deg, #00ffc3, #0080ff);
-        color: black;
-        font-weight: bold;
-        border: none;
-        border-radius: 10px;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0px 0px 15px #00ffc3;
-    }
-    .stMarkdown {
-        font-family: 'Courier New', Courier, monospace;
-    }
+    .main { background-color: #0e1117; color: #00ffc3; }
+    .stTextInput > div > div > input { background-color: #161b22; color: #00ffc3; border: 1px solid #00ffc3; border-radius: 10px; }
+    .stButton>button { width: 100%; background: linear-gradient(45deg, #00ffc3, #0080ff); color: black; font-weight: bold; border-radius: 10px; border: none; }
+    .stButton>button:hover { transform: scale(1.02); box-shadow: 0px 0px 15px #00ffc3; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR INTERFACE ---
+# --- 5. SIDEBAR ---
 with st.sidebar:
     st.title("⚡ SYSTEM STATUS")
-    st.code("STATUS: ONLINE\nCORE: NEURAL-LINK-v2\nUSER: AUTHORIZED\nENC: SH-512", language="bash")
+    st.code("STATUS: ONLINE\nCORE: NEURAL-LINK-v2\nUSER: AUTHORIZED", language="bash")
     st.markdown("---")
     st.image("https://img.icons8.com/nolan/128/artificial-intelligence.png")
-    st.info("CogniSpark OS is running on Master Mode.")
 
-# --- MAIN INTERFACE ---
+# --- 6. MAIN INTERFACE ---
 st.title("🛸 COGNISPARK: NEURAL INTERFACE")
 st.write("---")
 
 col1, col2 = st.columns([3, 1])
-
 with col1:
-    user_input = st.text_input("📡 TERMINAL_INPUT >", placeholder="Enter your query to bypass complexity...")
-
+    user_input = st.text_input("📡 TERMINAL_INPUT >", placeholder="Enter your query...")
 with col2:
     mode = st.selectbox("🛠️ PROTOCOL:", ["Deep Analysis", "Smart Notes", "Quick Solve", "Root Access"])
 
 if st.button("🚀 EXECUTE GENERATION"):
     if user_input:
         with st.status("🛠️ Injecting Neural Packets...", expanded=True) as status:
-            st.write("🔍 Scanning Global Databases...")
+            st.write("🔍 Scanning Neural Core...")
             time.sleep(1)
-            st.write("🧠 Decrypting AI Core...")
-            time.sleep(1)
-            st.write("🛡️ Compiling Results...")
-            
             try:
-                # Engineering the Prompt
-                system_prompt = f"Mode: {mode}. Task: Provide a high-level, professional, and detailed response for: {user_input}. Use markdown headers and logical structure."
-                response = model.generate_content(system_prompt)
-                
+                prompt = f"System Mode: {mode}. Task: Professional response for: {user_input}"
+                response = model.generate_content(prompt)
                 status.update(label="✅ TASK COMPLETED", state="complete", expanded=False)
                 
-                # --- MASTER OUTPUT ---
                 st.markdown("### 💎 RETRIEVED INTELLIGENCE:")
                 st.success(response.text)
                 st.balloons()
-                
             except Exception as e:
-                # Error recovery
-                st.error(f"⚠️ SYSTEM CRITICAL ERROR: {str(e)}")
+                st.error(f"⚠️ SYSTEM ERROR: {str(e)}")
     else:
-        st.warning("❗ ACCESS DENIED: Input field is empty.")
+        st.warning("❗ INPUT REQUIRED.")
 
-# --- FOOTER ---
 st.markdown("---")
-st.caption("© 2026 CogniSpark Master Core | Unauthorized duplication is prohibited #SUBHOJIT KARMAKAR.")
+st.caption("© 2026 CogniSpark Master Core | Unauthorized duplication is prohibited.")
+                
