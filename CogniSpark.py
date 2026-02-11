@@ -28,11 +28,28 @@ def get_working_model():
 model = get_working_model()
 
 # --- PAGE CONFIG ---
+# --- PAGE CONFIG WITH SEO ---
 st.set_page_config(
-    page_title="CogniSpark | AI Neural Engine",
+    page_title="CogniSpark AI | Advanced Neural Study Assistant",
     page_icon="⚡",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://cognispark.streamlit.app',
+        'Report a bug': "https://cognispark.streamlit.app",
+        'About': "# CogniSpark AI\nYour Professional AI Study Partner for Deep Analysis and Smart Notes. High-speed Neural Interface for students and researchers."
+    }
 )
+
+# --- GOOGLE SEARCH VISIBILITY SCRIPT ---
+st.markdown("""
+    <head>
+        <meta name="description" content="CogniSpark AI - The most advanced AI Neural Interface for students. Get smart notes, deep analysis, and quick solutions instantly.">
+        <meta name="keywords" content="CogniSpark, AI Study Assistant, Neural Engine, Smart Notes AI, Educational AI, Bengali AI Assistant">
+        <meta name="author" content="CogniSpark Team">
+    </head>
+    """, unsafe_allow_html=True)
+
 
 # --- CYBER HACKER STYLE CSS ---
 st.markdown("""
